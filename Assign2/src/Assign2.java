@@ -1,5 +1,6 @@
 import java.lang.Runtime;
 import java.util.Properties;
+
 /**
  * Reports certain properties and runtime information as specified through
  * commandline arguments
@@ -7,15 +8,14 @@ import java.util.Properties;
  * @author Ky Kartchner
  * @version 1.0
  */
-public class Assign2
-{
-    public static void main(String[] args){
+public class Assign2 {
+    public static void main(String[] args) {
         Runtime runtime = Runtime.getRuntime();
         Properties properties = System.getProperties();
 
         System.out.println();
 
-        for (int i = 0; i < args.length; ++i){
+        for (int i = 0; i < args.length; ++i) {
             switch (args[i]){
                 case "-cpu":
                     // Report the number of CPUs (physical and logical) available:
@@ -39,15 +39,15 @@ public class Assign2
                     break;
                 case "-java":
                     // Report the following items about the JVM:
-                    System.out.println("Java Vendor         : "
-                            + properties.getProperty("java.vendor")); //  Java vendor
-                    System.out.println("Java Runtime        : "
-                            + properties.getProperty("java.runtime.name")); //  Java runtime name
-                    //  Java version:
+                    //   Java vendor
+                    System.out.println("Java Vendor         : " + properties.getProperty("java.vendor")); 
+                    //   Java runtime name
+                    System.out.println("Java Runtime        : " + properties.getProperty("java.runtime.name"));                    
+                    //   Java version:
                     System.out.println("Java Version        : " + properties.getProperty("java.version")); 
-                    //  Java VM version:
+                    //   Java VM version:
                     System.out.println("Java VM Version     : " + properties.getProperty("java.vm.version"));
-                    //  Java VM name:
+                    //   Java VM name:
                     System.out.println("Java VM Name        : " + properties.getProperty("java.vm.name")); 
                     break;
                 default:
@@ -57,6 +57,5 @@ public class Assign2
         }
 
         System.out.println();
-
     }
 }
