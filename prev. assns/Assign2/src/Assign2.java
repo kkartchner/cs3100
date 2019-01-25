@@ -15,17 +15,17 @@ public class Assign2 {
 
         System.out.println();
 
-        for (int i = 0; i < args.length; ++i) {
-            switch (args[i]){
+        for (String arg : args) {
+            switch (arg) {
                 case "-cpu":
                     // Report the number of CPUs (physical and logical) available:
-                    System.out.println("Processors   : " + runtime.availableProcessors());  
+                    System.out.println("Processors   : " + runtime.availableProcessors());
                     break;
                 case "-mem":
                     // Report the available free memory, total memory, and max memory:
                     System.out.println("Free Memory  :\t" + String.format("%,12d", runtime.freeMemory()));
-                    System.out.println("Total Memory :\t" + String.format("%,12d",runtime.totalMemory()));
-                    System.out.println("Max Memory   :\t" + String.format("%,12d",runtime.maxMemory()));
+                    System.out.println("Total Memory :\t" + String.format("%,12d", runtime.totalMemory()));
+                    System.out.println("Max Memory   :\t" + String.format("%,12d", runtime.maxMemory()));
                     break;
                 case "-dirs":
                     // Report the process working directory and the user's home directory:
@@ -40,18 +40,18 @@ public class Assign2 {
                 case "-java":
                     // Report the following items about the JVM:
                     //   Java vendor
-                    System.out.println("Java Vendor         : " + properties.getProperty("java.vendor")); 
+                    System.out.println("Java Vendor         : " + properties.getProperty("java.vendor"));
                     //   Java runtime name
-                    System.out.println("Java Runtime        : " + properties.getProperty("java.runtime.name"));                    
+                    System.out.println("Java Runtime        : " + properties.getProperty("java.runtime.name"));
                     //   Java version:
-                    System.out.println("Java Version        : " + properties.getProperty("java.version")); 
+                    System.out.println("Java Version        : " + properties.getProperty("java.version"));
                     //   Java VM version:
                     System.out.println("Java VM Version     : " + properties.getProperty("java.vm.version"));
                     //   Java VM name:
-                    System.out.println("Java VM Name        : " + properties.getProperty("java.vm.name")); 
+                    System.out.println("Java VM Name        : " + properties.getProperty("java.vm.name"));
                     break;
                 default:
-                    System.out.println("unknown command: " + args[i]);
+                    System.out.println("unknown command: " + arg);
                     break;
             }
         }
