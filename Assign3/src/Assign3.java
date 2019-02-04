@@ -11,12 +11,13 @@ public class Assign3 {
         //   Else, attempt to execute it as external program
         
         Scanner sc = new Scanner(System.in);
+        Properties properties = Runtime.getProperties();
 
         while (true){
             prompt();
 
             String command = sc.next();
-
+            System.out.println(command);
             //String cmdArgs = splitCommand(sc.nextLine());    
        }
         /* 
@@ -53,7 +54,7 @@ public class Assign3 {
      * "[currentdir]:"
      */
     private static void prompt(){
-        System.out.println("[%s]: "); 
+        System.out.println("[%s]: ",); 
     }
 
     /**
