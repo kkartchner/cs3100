@@ -1,6 +1,7 @@
-import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -10,6 +11,7 @@ import java.util.Scanner;
 
 public class Assign3 {
     private static ArrayList<String> commandHistory = new ArrayList<>();
+    private static long totalChildProcessTime = 0;
 
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
@@ -29,7 +31,7 @@ public class Assign3 {
      *
      * @param command The command to run.
      */
-    private static void runCommand(@NotNull String command) {
+    private static void runCommand(String command) {
         if (!command.isEmpty()) {  // Ensure at least command name (commandArgs[0]) is included.
             String[] commandArgs = splitCommand(command);
             switch (commandArgs[0]) {  // Test if commandArgs[0] is a built in shell command:
@@ -76,8 +78,10 @@ public class Assign3 {
      * Command to execute: ptime
      */
     private static void showProcessTime() {
-        //TODO: "ptime": Display the number of seconds (4 digits past the decimal) spent executing (waiting for) child process.
-        System.out.println("showProcessTime function called");
+        //TODO: "ptime": Display the number of seconds (4 digits past the decimal) spent executing
+        // (waiting for) child process.
+
+        System.out.printf("Total time in child processes: %.4f\n", totalChildProcessTime / 1000.0);
     }
 
     /**
@@ -97,10 +101,10 @@ public class Assign3 {
      */
     private static void listDirectory() {
         File currentDir = new File(System.getProperty("user.dir"));
-
-
-        for (File file : currentDir.listFiles()) {
-            printFileInfo(file);
+        if (currentDir.listFiles() != null) {
+            for (File file : currentDir.listFiles()) {
+                printFileInfo(file);
+            }
         }
     }
 
@@ -110,7 +114,7 @@ public class Assign3 {
      *
      * @param file The file to print information about.
      */
-    private static void printFileInfo(@NotNull File file) {
+    private static void printFileInfo(File file) {
         char d = file.isDirectory() ? 'd' : '-';
         char r = file.canRead() ? 'r' : '-';
         char w = file.canWrite() ? 'w' : '-';
@@ -126,31 +130,65 @@ public class Assign3 {
 
     /**
      * Change the directory to specified location or to home directory.
-     * Command to execute: cd [path] (no path defaults to "~")
+     * Command to execute: cd [directory name] (no path defaults to "~")
      *
      * @param path The path of the directory to change to.
      */
-    private static void changeDirectory(@NotNull String path) {
-        if (path.equals("~")) {
-            // Change to home directory
+    private static void changeDirectory(String path) {
+        if (path.equals("~")) {                                     // Change to home directory
             System.setProperty("user.dir", System.getProperty("user.home"));
-        } else if (path.equals("..")) {
-            // TODO: "cd": Change to specified path of directory
-            // Check if specified path exists
-            //      If it does, change to it
-            //      Else, print an error message
+        } else if (path.equals("..")) {                             // Change to parent directory
+            File currentDir = new File(System.getProperty("user.dir"));
+            if (currentDir.getParent() != null) {
+                System.setProperty("user.dir", currentDir.getParent());
+            }
+        } else {                                                    // Change to specified directory if valid:
+            String currentDir = System.getProperty("user.dir");     //      Store name of current directory
+            File proposed = new File(currentDir + "/" + path); // Create File for checking if path exists
+
+            if (proposed.exists()) {                                // Check if specified path exists
+                if (proposed.isDirectory()) {                       //      If it is a directory, then change to it
+                    Path directoryPath = Paths.get(currentDir, path);
+                    System.setProperty("user.dir", directoryPath.toString());
+                } else {                                            //      Otherwise print an error.
+                    System.out.printf("cd failed: \"%s\" is not a directory.\n", path);
+                }
+            } else {                                                // Else, print an error message
+                System.out.printf("cd failed: Directory \"%s\" not found. Does it exist?\n", path);
+            }
         }
     }
 
     //TODO: "|": Pipe between two external commands.
 
-    private static void runAsExternal(@NotNull String[] commandArgs) {
+    private static void runAsExternal(String[] command) {
         //TODO: runAsExternal(): Run external command if valid
+        boolean noWait = command[command.length - 1].equals("&"); // No waiting if last argument is ampersand
+        if (noWait) {       // Prevent wait ampersand (&) from being passed in as an argument if needed
+            command[command.length - 1] = "";
+        }
 
-        System.out.printf("runAsExternal called on command %s\n", commandArgs[0]);
+        // Create process object and pass in command:
+        ProcessBuilder pb = new ProcessBuilder(command);
+        pb.redirectInput(ProcessBuilder.Redirect.INHERIT);
+        pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        pb.directory(); // Cause new process to inherit current process working directory
 
+        try { // Try to run the process:
+            long start = System.currentTimeMillis(); // Save current time for start time
+            Process p = pb.start();                  // Start the process
+            if (!noWait) {                           // If it should wait
+                p.waitFor();                         //     Then wait
+            }
+            long end = System.currentTimeMillis();   // Save current time for end time
+            totalChildProcessTime += (end - start);  // Add the elapsed time (end - start) to total time
+
+        } catch (IOException e) {   // If there are problems running the process
+            System.out.println("Invalid command: " + command[0]);
+        } catch (Exception e) {
+            System.out.println("Other problem: " + e);
+        }
     }
-
 
     /**
      * Split the user command by spaces, but preserving them when inside double-quotes.
@@ -158,7 +196,6 @@ public class Assign3 {
      * https://stackoverflow.com/questions/366202/regex-for-splitting-a-string-using-space-when-not-surrounded-by-
      * single-or-double
      */
-    @NotNull
     private static String[] splitCommand(String command) {
         java.util.List<String> matchList = new java.util.ArrayList<>();
 
