@@ -78,9 +78,6 @@ public class Assign3 {
      * Command to execute: ptime
      */
     private static void showProcessTime() {
-        //TODO: "ptime": Display the number of seconds (4 digits past the decimal) spent executing
-        // (waiting for) child process.
-
         System.out.printf("Total time in child processes: %.4f\n", totalChildProcessTime / 1000.0);
     }
 
@@ -159,27 +156,94 @@ public class Assign3 {
         }
     }
 
-    //TODO: "|": Pipe between two external commands.
-
     private static void runAsExternal(String[] command) {
-        //TODO: runAsExternal(): Run external command if valid
         boolean noWait = command[command.length - 1].equals("&"); // No waiting if last argument is ampersand
         if (noWait) {       // Prevent wait ampersand (&) from being passed in as an argument if needed
             command[command.length - 1] = "";
         }
 
-        // Create process object and pass in command:
-        ProcessBuilder pb = new ProcessBuilder(command);
-        pb.redirectInput(ProcessBuilder.Redirect.INHERIT);
-        pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-        pb.directory(); // Cause new process to inherit current process working directory
+        int indexOfPipe = command.length;
+        for (int i = 0; i < command.length; ++i){
+            if (command[i].equals("|")){
+                indexOfPipe = i;
+                break;
+            }
+        }
+
+        boolean piping = (indexOfPipe != command.length);
+        if (piping){
+            pipeExternal(command, indexOfPipe, noWait);
+        } else {
+            runExternal(command, noWait);
+        }
+    }
+
+    private static void pipeExternal(String[] command, int indexOfPipe, boolean noWait){
+        String[] command1 = new String[indexOfPipe];
+        System.arraycopy(command, 0, command1, 0, command1.length);
+
+        String[] command2 = new String[Math.abs(command.length - indexOfPipe - 1)]; 
+        System.arraycopy(command, indexOfPipe+1, command2, 0, command2.length);
+
+        /* Create process builders */
+        ProcessBuilder processBuilder1 = new ProcessBuilder(command1);
+        ProcessBuilder processBuilder2 = new ProcessBuilder(command2);
+
+        /* Redirect input and output */
+        processBuilder1.redirectInput(ProcessBuilder.Redirect.INHERIT);
+        processBuilder2.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+
+        File currentDir = new File(System.getProperty("user.dir"));
+        processBuilder1.directory(currentDir);
+        processBuilder2.directory(currentDir);
+
+        try { // Try to run the processes
+            long start = System.currentTimeMillis(); // Save current time for start time
+            Process process1 = processBuilder1.start();
+            Process process2 = processBuilder2.start();
+
+            pipeProcesses(process1, process2);
+
+            // Wait if noWait is false:
+            if (!noWait) { 
+                process1.waitFor();   
+                process2.waitFor();
+            }
+
+            long end = System.currentTimeMillis();   // Save current time for end time
+            totalChildProcessTime += (end - start);  // Add the elapsed time (end - start) to total time
+
+        } catch (Exception e) {
+            System.out.println("Problem with piping: " + e);
+
+        }
+    }
+
+    private static void pipeProcesses (Process p1, Process p2) throws Exception{
+        // Write output of p1 to input of p2:
+        int data = 0;
+        while ((data = p1.getInputStream().read()) != -1){
+            p2.getOutputStream().write(data);
+        }
+        p2.getOutputStream().flush();
+        p2.getOutputStream().close();
+    }
+    /**
+    */
+    private static void runExternal(String[] command, boolean noWait){
+        ProcessBuilder processBuilder = new ProcessBuilder(command);
+        processBuilder.redirectInput(ProcessBuilder.Redirect.INHERIT);
+        processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        processBuilder.directory(new File(System.getProperty("user.dir")));
 
         try { // Try to run the process:
             long start = System.currentTimeMillis(); // Save current time for start time
-            Process p = pb.start();                  // Start the process
+            Process process = processBuilder.start();                  // Start the process
+
             if (!noWait) {                           // If it should wait
-                p.waitFor();                         //     Then wait
+                process.waitFor();                         //     Then wait
             }
+
             long end = System.currentTimeMillis();   // Save current time for end time
             totalChildProcessTime += (end - start);  // Add the elapsed time (end - start) to total time
 
