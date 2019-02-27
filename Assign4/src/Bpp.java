@@ -10,7 +10,8 @@
  */
 class Bpp {
     /**
-     * Returns the nth digit of pi followed by the next 8 numbers
+     * Returns the nth digit of pi followed by the next 8 numbers*
+     * *Updated so it only returns the nth digit.
      *
      * @param n - nth number of pi to return
      * @return returns an integer value containing 8 digits after n

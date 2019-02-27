@@ -1,22 +1,42 @@
 import java.util.HashMap;
 
-public class ResultTable {
-    private HashMap<Integer, Integer> table = new HashMap<>();
+/**
+ * Used to store the value of the nth digit of pi using n as the key and the computed value as the value. 
+ *
+ * @author Ky Kartchner
+ */
+public class ResultTable<K, V> {
+    private HashMap<K, V> table = new HashMap<>();
 
-    synchronized void storeValue(int key, int val) {
+    /**
+     * Store specified value at specified key.
+     *
+     * @param key The key to store at
+     * @param val The value to store
+     */
+    synchronized void storeValue(K key, V val) { 
         table.put(key, val);
     }
 
-    synchronized Integer getValue(int key) {
+    /**
+     * Get the value stored at the specified key.
+     *
+     * @param key The key whose value to get
+     */
+    synchronized V getValue(K key) { // Get the value stored at the key
         return table.get(key);
     }
 
+    /**
+     * String together the digits stored in the table (i.e '14159...' etc.).
+     *
+     * @return Returns the stringed together digits
+     */
     @Override
-    public String toString() {
+    public String toString() { 
         StringBuilder valString = new StringBuilder();
-        for (var entry : table.entrySet()) {
-            valString.append(entry.getValue());
-        }
+        table.forEach((key, value) -> valString.append(value));
+
         return valString.toString();
     }
 }
