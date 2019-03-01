@@ -60,25 +60,40 @@ public class Assign3 {
     private static void runCommand(String command) {
         if (!command.isEmpty()) {  // Ensure at least command name (commandArgs[0]) is included.
             String[] commandArgs = splitCommand(command);
-            switch (commandArgs[0]) {  // Test if commandArgs[0] is a built in shell command:
-                case "ptime":               //   If so, perform that operation
+            switch (commandArgs[0]) {
+                /* Test if commandArgs[0] is a built in shell command: If so, perform that operation: */
+                case "ptime":
                     showProcessTime();
                     break;
                 case "history":
                     listHistory();
                     break;
                 case "^":
-                    int commandNum = commandArgs.length > 1 ? Integer.valueOf(commandArgs[1]) : 0;
-                    boolean numInBounds = (0 < commandNum && commandNum <= commandHistory.size());
+                    try {
+                        // Set commandNum to commandArg[1] if it is a valid number, otherwise throw an exception:
+                        int commandNum = Integer.valueOf(commandArgs[1]);
 
-                    if (numInBounds) {
-                        boolean willLoop = commandHistory.get(commandNum - 1).equals("^ " + commandNum);
-                        if (!willLoop) {
-                            runCommand(commandHistory.get(commandNum - 1));
-                        } else {
-                            System.out.printf("Command \"%s\" would created an infinite loop. Command not executed\n",
-                                    command);
+                        boolean numInBounds = (0 < commandNum && commandNum <= commandHistory.size());
+                        if (numInBounds) {
+                            /* The command history is 1-based, so 1 is subtracted to convert to 0-based. If the
+                             command at commandNum-1 is '^ commandNum', this will cause an infinite loop, so don't
+                             try to execute. */
+                            boolean willLoop = commandHistory.get(commandNum - 1).equals("^ " + commandNum);
+                            if (!willLoop) {
+                                runCommand(commandHistory.get(commandNum - 1));
+                            } else {
+                                System.out.printf("Command \"%s\" would created an infinite loop." +
+                                        " Command not executed\n", command);
+                            }
+                        } else { // The number specified is not a valid command from command history:
+                            System.out.printf("Failed: No command %d in command history\n", commandNum);
                         }
+                    } catch (ArrayIndexOutOfBoundsException ex) { // No argument is passed with "^" command
+                        System.out.println("Command \"^\" must be followed by a number");
+
+                    } catch (NumberFormatException ex) { // Argument passed is not a number
+                        System.out.printf("Error: \"%s\" is not a number. Command \"^\" must be followed by"
+                                + " a number\n", commandArgs[1]);
                     }
                     break;
                 case "list":
@@ -91,7 +106,8 @@ public class Assign3 {
                 case "exit":
                     System.exit(0);
                     break;
-                default:                     //   Else, attempt to execute it as an external program
+                /* Else, attempt to execute it as an external program */
+                default:
                     runAsExternal(commandArgs);
                     break;
             }

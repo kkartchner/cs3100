@@ -7,7 +7,7 @@ import java.util.function.Supplier;
  * Describes the TaskQueue with an underlying queue LinkedList structure;
  * Used for storing tasks for later execution.
  *
- * @author Ky Kartchner 
+ * @author Ky Kartchner
  */
 class TaskQueue {
     private Queue<Task> queue = new LinkedList<>();
@@ -30,7 +30,7 @@ class TaskQueue {
 
     /**
      * Adds the entire specified collection of tasks to the queue.
-     * 
+     *
      * @param tasks The collection of tasks to add
      */
     synchronized void addAll(Collection<Task> tasks) {
@@ -58,7 +58,7 @@ class Task<R> { // R is the return type to use with the Supplier functional inte
     R perform() {
         return toDo.get();
     }
-    
+
     /**
      * Returns the task's stored id value.
      */

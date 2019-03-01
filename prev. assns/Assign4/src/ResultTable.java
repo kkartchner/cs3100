@@ -1,7 +1,7 @@
 import java.util.HashMap;
 
 /**
- * Used to store the value of the nth digit of pi using n as the key and the computed value as the value. 
+ * Used to store the value of the nth digit of pi using n as the key and the computed value as the value.
  *
  * @author Ky Kartchner
  */
@@ -14,7 +14,7 @@ public class ResultTable<K, V> {
      * @param key The key to store at
      * @param val The value to store
      */
-    synchronized void storeValue(K key, V val) { 
+    synchronized void storeValue(K key, V val) {
         table.put(key, val);
     }
 
@@ -33,7 +33,7 @@ public class ResultTable<K, V> {
      * @return Returns the stringed together digits
      */
     @Override
-    public String toString() { 
+    public String toString() {
         StringBuilder valString = new StringBuilder();
         table.forEach((key, value) -> valString.append(value));
 
