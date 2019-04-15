@@ -16,26 +16,28 @@ class TaskFIFO implements Runnable {
 
     @Override
     public void run() {
-        boolean[] inMemory = new boolean[maxPageReference];
+        boolean[] inMemory = new boolean[maxPageReference + 1];
         byte framesInUse = 0;
 
         Queue<Integer> replacementQueue = new ArrayDeque<>();
 
-        for (int i = 0; i < sequence.length; ++i) {
+        pageFaults[maxMemoryFrames] = 0; // Ensure that page fault count starts at 0
+
+        for (int pageRef : sequence) {
             // If current page reference is not already in a memory frame
-            if (!inMemory[sequence[i]]) {
+            if (!inMemory[pageRef]) {
                 ++pageFaults[maxMemoryFrames]; // A page fault has occurred
 
-                // Replace appropriate page reference with current page reference
-                if (framesInUse == maxMemoryFrames) {
+                if (framesInUse == maxMemoryFrames) { // If frames are full
+                    // Replace next in line page reference with current page reference
                     inMemory[replacementQueue.poll()] = false;
                 } else {
                     ++framesInUse;
                 }
 
-                inMemory[sequence[i]] = true;
+                inMemory[pageRef] = true;
 
-                replacementQueue.offer(sequence[i]);
+                replacementQueue.offer(pageRef);
             }
         }
     }

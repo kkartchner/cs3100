@@ -1,12 +1,8 @@
-import java.util.Set;
-import java.util.HashSet;
-
 class TaskMRU implements Runnable {
     private int[] sequence;
     private int maxMemoryFrames;
     private int maxPageReference;
     private int[] pageFaults;
-    int mostRecentlyUsed;
 
     public TaskMRU(int[] sequence, int maxMemoryFrames, int maxPageReference, int[] pageFaults) {
         this.maxMemoryFrames = maxMemoryFrames;
@@ -16,21 +12,33 @@ class TaskMRU implements Runnable {
         this.pageFaults = pageFaults;
     }
 
+    /**
+     * Add the page reference sequence using the most recently used (MRU) replacement algorithm.
+     */
     @Override
     public void run() {
-        Set<Integer> memoryFrames = new HashSet<Integer>(maxPageReference);
-        for (int i = 0; i < sequence.length; ++i) {
-            // If current page reference is not already in a memory frame
-            if (!memoryFrames.contains(sequence[i])) {
-                ++pageFaults[maxMemoryFrames]; // A page fault has occurred
+        boolean[] inMemory = new boolean[maxPageReference + 1];
+        byte framesInUse = 0;
 
-                if (memoryFrames.size() == maxMemoryFrames) { // If no more room in memory
-                    /* Remove the most recently used page reference */
-                    memoryFrames.remove(mostRecentlyUsed);
-                } 
-                memoryFrames.add(sequence[i]);
-                mostRecentlyUsed = sequence[i];
-            }         
+        int mostRecentlyUsed = -1; // -1 to distinguish from when it actually gets assigned
+
+        pageFaults[maxMemoryFrames] = 0; // Ensure that page fault count starts at 0
+
+        /* For each page reference in the sequence */
+        for (int pageRef : sequence) {
+            if (!inMemory[pageRef]) {
+                /* If current page reference is not already in a memory frame */
+                ++pageFaults[maxMemoryFrames]; // A page fault has occurred, so increment
+
+                if (framesInUse == maxMemoryFrames) {
+                    /* If no more room in memory */
+                    inMemory[mostRecentlyUsed] = false; // Remove the most recently used page reference
+                } else {
+                    ++framesInUse;
+                }
+                inMemory[pageRef] = true; // Add current page reference to frames
+            }
+            mostRecentlyUsed = pageRef; // Set current page reference as most recently used
         }
     }
 }

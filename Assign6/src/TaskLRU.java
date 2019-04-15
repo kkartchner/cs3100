@@ -1,7 +1,7 @@
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.Iterator;
 
 class TaskLRU implements Runnable {
     private int[] sequence;
@@ -18,25 +18,24 @@ class TaskLRU implements Runnable {
 
     @Override
     public void run() {
-        Set<Integer> memoryFrames = new LinkedHashSet<Integer>(maxPageReference);
-        for (int i = 0; i < sequence.length; ++i) {
-            // If current page reference is not already in a memory frame
-            if (!memoryFrames.contains(sequence[i])) {
-                ++pageFaults[maxMemoryFrames]; // A page fault has occurred
-
-                if (memoryFrames.size() == maxMemoryFrames) {
-                    /* Remove the front (oldest) entryr of memoryFrames' internal list to make room */
-                    Iterator<Integer> it = memoryFrames.iterator();
-                    if (it.hasNext()) {
-                        it.next();
-                        it.remove();
-                    }
-                } 
-            } else {
-                /* Remove sequence[i] so it can be reinserted at the end of memoryFrames internal list */ 
-                memoryFrames.remove(sequence[i]);
+        Set<Integer> memoryFrames = Collections.newSetFromMap(new LinkedHashMap<>(maxMemoryFrames + 1) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<Integer, Boolean> eldest) {
+                return size() > maxMemoryFrames; // Cause eldest to be removed if size is greater than maxMemoryFrames
             }
-            memoryFrames.add(sequence[i]);
+
+        });
+        pageFaults[maxMemoryFrames] = 0; // Ensure page faults count starts at 0
+
+        for (int value : sequence) {
+            /* If current page reference is not already in a memory frame */
+            if (!memoryFrames.contains(value)) {
+                ++pageFaults[maxMemoryFrames]; // A page fault has occurred, so increment
+            } else {
+                /* Remove page reference so it can be reinserted as most recently used */
+                memoryFrames.remove(value);
+            }
+            memoryFrames.add(value); // Insert or reinsert page reference into memory
         }
     }
 }
