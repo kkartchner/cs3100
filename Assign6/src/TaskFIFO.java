@@ -16,7 +16,7 @@ class TaskFIFO implements Runnable {
 
     @Override
     public void run() {
-        boolean[] inMemory = new boolean[maxPageReference + 1];
+        boolean[] inMemory = new boolean[maxPageReference];
         byte framesInUse = 0;
 
         Queue<Integer> replacementQueue = new ArrayDeque<>();
@@ -38,6 +38,5 @@ class TaskFIFO implements Runnable {
                 replacementQueue.offer(sequence[i]);
             }
         }
-
     }
 }

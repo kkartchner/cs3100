@@ -49,12 +49,7 @@ class Assign6 {
         reportBeladys(resultsLRU, "LRU");
         reportBeladys(resultsMRU, "MRU");
 
-        // System.out.println("Testing LRU...");
-
-        // Tests.testLRU();
-        // System.out.println("Testing MRU...");
-        // Tests.testMRU();
-
+        Tests.validateAlgorithms();
     }
 
     /**
