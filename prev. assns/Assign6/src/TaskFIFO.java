@@ -1,6 +1,13 @@
 import java.util.ArrayDeque;
 import java.util.Queue;
 
+/**
+ * Completes a simulation of page reference sequences from 1 to 250,
+ * using from 1 to 100 frames, incorporating the FIFO 
+ * page replacement algorithm.
+ *
+ * @author Ky Kartchner
+ */
 class TaskFIFO implements Runnable {
     private int[] sequence;
     private int maxMemoryFrames;
@@ -14,6 +21,10 @@ class TaskFIFO implements Runnable {
         this.pageFaults = pageFaults;
     }
 
+    /**
+     * Add the page reference sequence using the FIFO replacement
+     * algorithm to replace frames as needed to make room.
+     */
     @Override
     public void run() {
         boolean[] inMemory = new boolean[maxPageReference + 1];

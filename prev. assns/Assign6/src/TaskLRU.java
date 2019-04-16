@@ -3,6 +3,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Completes a simulation of page reference sequences from 1 to 250,
+ * using from 1 to 100 frames, incorporating the Least-Recently Removed
+ * (LRU) page replacement algorithm.
+ *
+ * @author Ky Kartchner
+ */
 class TaskLRU implements Runnable {
     private int[] sequence;
     private int maxMemoryFrames;
@@ -16,6 +23,10 @@ class TaskLRU implements Runnable {
         this.pageFaults = pageFaults;
     }
 
+    /**
+     * Add the page reference sequence using the least-recently used (LRU) replacement
+     * algorithm to replace frames as needed to make room.
+     */
     @Override
     public void run() {
         Set<Integer> memoryFrames = Collections.newSetFromMap(new LinkedHashMap<>(maxMemoryFrames + 1) {

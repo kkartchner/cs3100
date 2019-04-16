@@ -1,3 +1,10 @@
+/**
+ * Completes a simulation of page reference sequences from 1 to 250,
+ * using from 1 to 100 frames, incorporating the Most-Recently Used
+ * page replacement algorithm.
+ *
+ * @author Ky Kartchner
+ */
 class TaskMRU implements Runnable {
     private int[] sequence;
     private int maxMemoryFrames;
@@ -13,7 +20,8 @@ class TaskMRU implements Runnable {
     }
 
     /**
-     * Add the page reference sequence using the most recently used (MRU) replacement algorithm.
+     * Add the page reference sequence using the most-recently used (MRU) replacement
+     * algorithm to replace frames as needed to make room.
      */
     @Override
     public void run() {
